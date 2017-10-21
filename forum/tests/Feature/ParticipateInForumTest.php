@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use Illuminate\Routing\Route;
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -12,17 +13,23 @@ class ParticipateInForumTest extends TestCase
 
     use DatabaseMigrations;
 
+    public function setUp()
+    {
+        parent::setUp();
+
+        $this->thread = factory('App\Thread')->create();
+    }
+
     /** @test */
     public function an_authenticated_user_may_participate_forum_threads()
     {
         $this->signIn($user = factory('App\User')->create());
-        $thread = factory('App\Thread')->create();
         $reply = factory('App\Reply')->make();
 
-        $this->post($thread->path() . '/replies', $reply->toArray());
+        $this->post($this->thread->path() . '/replies', $reply->toArray());
 
-        $this->get($thread->path())
-            ->assertSee($reply->body);
+        $this->get($this->thread->path())
+            ->assertSee(e($reply->body));
     }
 
     /** @test */
@@ -31,5 +38,24 @@ class ParticipateInForumTest extends TestCase
         $this->expectException('Illuminate\Auth\AuthenticationException');
 
         $this->post('/threads/1/replies', []);
+    }
+
+    /** @test */
+    public function an_authenticated_sees_a_reply_form()
+    {
+        $this->signIn($user = factory('App\User')->create());
+
+        $reponse = $this->get($this->thread->path());
+
+        $reponse->assertSee('id="reply_form"');
+    }
+
+    /** @test */
+    public function unauthenticated_user_does_not_see_reply_form()
+    {
+        $response = $this->get($this->thread->path());
+
+        $response->assertDontSee('id="reply_form"');
+        $response->assertSee('Please <a href="'.route('login').'">sign in</a>');
     }
 }
