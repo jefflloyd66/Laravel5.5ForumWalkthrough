@@ -31,4 +31,11 @@ class CreateThreadsTest extends TestCase
         $thread = make('App\Thread');
         $this->post('/threads', $thread->toArray());
     }
+
+    /** @test */
+    public function guests_may_not_view_create_threads_form()
+    {
+        $this->get('/threads/create')
+            ->assertRedirect('/login');
+    }
 }
