@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Thread;
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -18,7 +19,10 @@ class CreateThreadsTest extends TestCase
         $thread = make('App\Thread');
         $this->post('/threads', $thread->toArray());
 
-        $response = $this->get($thread->path());
+        $postedThread = Thread::first();
+
+        $response = $this->get($postedThread->path());
+
         $response->assertSee($thread->title)
             ->assertSee($thread->body);
     }

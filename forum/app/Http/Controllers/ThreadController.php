@@ -2,9 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Channel;
 use App\Thread;
 use Illuminate\Http\Request;
 
+/**
+ * Class ThreadController
+ * @package App\Http\Controllers
+ */
 class ThreadController extends Controller
 {
     public function __construct()
@@ -44,6 +49,7 @@ class ThreadController extends Controller
     {
         $thread = Thread::create([
             'user_id' => auth()->id(),
+            'channel_id' => request('channel_id'),
             'title' => request('title'),
             'body' => request('body')
         ]);
@@ -54,10 +60,11 @@ class ThreadController extends Controller
     /**
      * Display the specified resource.
      *
+     * @param  \App\Channel  $channel
      * @param  \App\Thread  $thread
      * @return \Illuminate\Http\Response
      */
-    public function show(Thread $thread)
+    public function show($channel, Thread $thread)
     {
         return view('threads.show', compact('thread'));
     }

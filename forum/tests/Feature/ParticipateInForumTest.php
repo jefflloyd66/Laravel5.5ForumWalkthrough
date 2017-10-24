@@ -21,7 +21,7 @@ class ParticipateInForumTest extends TestCase
     }
 
     /** @test */
-    public function an_authenticated_user_may_participate_forum_threads()
+    public function an_authenticated_user_may_participate_in_forum_threads()
     {
         $this->signIn($user = factory('App\User')->create());
         $reply = factory('App\Reply')->make();
@@ -35,7 +35,7 @@ class ParticipateInForumTest extends TestCase
     /** @test */
     public function unauthenticated_users_may_not_add_replies()
     {
-        $response = $this->post('/threads/1/replies', []);
+        $response = $this->post('/threads/channel/1/replies', []);
 
         $response->assertRedirect('/login');
     }
