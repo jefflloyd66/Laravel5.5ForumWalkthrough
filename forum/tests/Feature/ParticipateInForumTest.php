@@ -58,4 +58,15 @@ class ParticipateInForumTest extends TestCase
         $response->assertDontSee('id="reply_form"');
         $response->assertSee('Please <a href="'.route('login').'">sign in</a>');
     }
+
+    /** @test */
+    public function a_reply_requires_a_body()
+    {
+        $this->signIn($user = factory('App\User')->create());
+
+        $reply = factory('App\Reply')->make(['body' => null]);
+
+        $response = $this->post($this->thread->path() . '/replies', $reply->toArray());
+        $response->assertSessionHasErrors('body');
+    }
 }

@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Thread;
+use Illuminate\Foundation\Testing\TestResponse;
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -40,5 +41,46 @@ class CreateThreadsTest extends TestCase
     {
         $this->get('/threads/create')
             ->assertRedirect('/login');
+    }
+    
+    /** @test */
+    public function a_thread_requires_a_title()
+    {
+        $response = $this->publishThread(['title' => null]);
+
+        $response->assertSessionHasErrors('title');
+    }
+
+    /** @test */
+    public function a_thread_requires_a_body()
+    {
+        $response = $this->publishThread(['body' => null]);
+
+        $response->assertSessionHasErrors('body');
+    }
+
+    /** @test */
+    public function a_thread_requires_a_valid_channel()
+    {
+        factory('App\Channel',2)->create();
+
+        $response = $this->publishThread(['channel_id' => null]);
+        $response->assertSessionHasErrors('channel_id');
+
+        $response = $this->publishThread(['channel_id' => 9999]);
+        $response->assertSessionHasErrors('channel_id');
+    }
+
+    /**
+     * @param $overrides
+     * @return TestResponse
+     */
+    protected function publishThread($overrides): TestResponse
+    {
+        $this->signIn();
+
+        $thread = factory('App\Thread')->make($overrides);
+
+        return $this->post('/threads', $thread->toArray());
     }
 }
